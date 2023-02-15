@@ -12,12 +12,17 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<UserDto> getAllUsers() {
         return userService.getAllUsers();
     }
 
+    @GetMapping("/email")
+    public List<UserShortWithIP> getAllUsersByEmail(@RequestParam String email) {
+        return userService.getUsersEmailWithIp(email);
+    }
+
     @PostMapping
-    public User saveNewUser(@RequestBody User user) {
+    public UserDto saveNewUser(@RequestBody UserDto user) {
         return userService.saveUser(user);
     }
 }
