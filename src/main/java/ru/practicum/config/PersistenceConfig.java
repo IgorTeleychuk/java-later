@@ -66,4 +66,6 @@ public class PersistenceConfig {
         transactionManager.setEntityManagerFactory(entityManagerFactory);
         return transactionManager;
     }
+
+
 }

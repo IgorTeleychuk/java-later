@@ -1,4 +1,4 @@
-package ru.practicum.item;
+package ru.practicum.item.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import lombok.Setter;
 public class ItemCountByUser {
 
     private Long userId;
-
+    
     private Long count;
-
+    
 }

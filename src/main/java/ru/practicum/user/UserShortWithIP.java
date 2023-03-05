@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserShortWithIP implements UserShort {
-
+    
     private String firstName;
     private String email;
     private String ip;

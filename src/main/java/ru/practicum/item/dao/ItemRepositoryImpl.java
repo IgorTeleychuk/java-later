@@ -1,9 +1,12 @@
-package ru.practicum.item;
+package ru.practicum.item.dao;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
+import ru.practicum.item.ItemUrlStatusProvider;
+import ru.practicum.item.model.ItemInfo;
+import ru.practicum.item.model.ItemInfoWithUrlState;
 
-import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ItemRepositoryImpl implements ItemRepositoryCustom {
