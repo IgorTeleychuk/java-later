@@ -8,14 +8,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.common.InsufficientPermissionException;
 import ru.practicum.common.NotFoundException;
-import ru.practicum.item.dao.ItemRepository;
 import ru.practicum.item.dto.AddItemRequest;
 import ru.practicum.item.dto.GetItemRequest;
 import ru.practicum.item.dto.ItemDto;
 import ru.practicum.item.dto.ModifyItemRequest;
 import ru.practicum.item.model.Item;
-import ru.practicum.item.model.ItemInfoWithUrlState;
 import ru.practicum.item.model.QItem;
+import ru.practicum.user.User;
+import ru.practicum.user.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +26,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 class ItemServiceImpl implements ItemService {
     private final ItemRepository repository;
+    private final UserRepository userRepository;
     private final UrlMetaDataRetriever urlMetaDataRetriever;
 
     @Override
@@ -37,16 +38,19 @@ class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public ItemDto addNewItem(Long userId, AddItemRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new InsufficientPermissionException("You do not have permission to perform this operation"));
+
         // Собираем метаданные о переданном url-адресе
         UrlMetaDataRetriever.UrlMetadata result = urlMetaDataRetriever.retrieve(request.getUrl());
 
         // проверяем, возможно такой url-адрес уже был сохранён
         // если адрес уже есть, то обновляем информацию о тегах и возвращаем обновлённый item
         // в противном случае - сохраняем новый item и возвращаем его
-        Optional<Item> maybeExistingItem = repository.findByUserIdAndResolvedUrl(userId, result.getResolvedUrl());
+        Optional<Item> maybeExistingItem = repository.findByUserAndResolvedUrl(user, result.getResolvedUrl());
         Item item;
         if(maybeExistingItem.isEmpty()) {
-            item = repository.save(ItemMapper.mapToItem(result, userId, request.getTags()));
+            item = repository.save(ItemMapper.mapToItem(result, user, request.getTags()));
         } else {
             item = maybeExistingItem.get();
             if(request.getTags() != null && !request.getTags().isEmpty()) {
@@ -64,11 +68,6 @@ class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemInfoWithUrlState> getUserItemStates(long userId) {
-        return repository.findAllByUserIdWithUrlState(userId);
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public List<ItemDto> getItems(GetItemRequest req) {
         // Для поиска ссылок используем QueryDSL чтобы было удобно настраивать разные варианты фильтров
@@ -78,7 +77,7 @@ class ItemServiceImpl implements ItemService {
         List<BooleanExpression> conditions = new ArrayList<>();
         // Условие, которое будет проверяться всегда - пользователь сделавший запрос
         // должен быть тем же пользователем, что сохранил ссылку
-        conditions.add(item.userId.eq(req.getUserId()));
+        conditions.add(item.user.id.eq(req.getUserId()));
 
         // Проверяем один из фильтров указанных в запросе - state
         GetItemRequest.State state = req.getState();
@@ -120,6 +119,13 @@ class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<ItemDto> getUserItems(String lastName) {
+        List<Item> foundItems = repository.findItemsByLastNamePrefix(lastName);
+        return ItemMapper.mapToItemDto(foundItems);
+    }
+
+    @Override
     public ItemDto changeItem(long userId, ModifyItemRequest request) {
         Optional<Item> maybeItem = getAndCheckPermissions(userId, request.getItemId());
         if(maybeItem.isPresent()) {
@@ -147,7 +153,7 @@ class ItemServiceImpl implements ItemService {
         Optional<Item> maybeItem = repository.findById(itemId);
         if (maybeItem.isPresent()) {
             Item item = maybeItem.get();
-            if(!item.getUserId().equals(userId)) {
+            if(!item.getUser().getId().equals(userId)) {
                 throw new InsufficientPermissionException("You do not have permission to perform this operation");
             }
         }

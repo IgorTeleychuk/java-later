@@ -1,4 +1,4 @@
-package user;
+package ru.practicum.user;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import ru.practicum.config.PersistenceConfig;
-import ru.practicum.user.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;

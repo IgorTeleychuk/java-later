@@ -3,6 +3,7 @@ package ru.practicum.item.model;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import ru.practicum.user.User;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -17,8 +18,12 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    // исключаем все поля с отложенной загрузкой из
+    // метода toString, чтобы не было случайных обращений
+    // базе данных, например при выводе в лог.
+    @ToString.Exclude
+    private User user;
 
     @Column
     private String url;

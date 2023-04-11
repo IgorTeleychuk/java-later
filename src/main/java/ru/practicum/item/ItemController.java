@@ -8,6 +8,7 @@ import ru.practicum.item.dto.ItemDto;
 import ru.practicum.item.dto.ModifyItemRequest;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/items")
@@ -23,6 +24,11 @@ public class ItemController {
                              @RequestParam(defaultValue = "10") int limit,
                              @RequestParam(required = false) List<String> tags) {
         return itemService.getItems(GetItemRequest.of(userId, state, contentType, sort, limit, tags));
+    }
+
+    @GetMapping(params = "lastName")
+    public List<ItemDto> get(@RequestParam String lastName) {
+        return itemService.getUserItems(lastName);
     }
 
     @PostMapping

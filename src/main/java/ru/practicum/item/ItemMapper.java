@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import ru.practicum.item.dto.ItemDto;
 import ru.practicum.item.model.Item;
+import ru.practicum.user.User;
 
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -18,9 +19,9 @@ final class ItemMapper {
             .ofPattern("yyyy.MM.dd hh:mm:ss")
             .withZone(ZoneOffset.UTC);
 
-    public static Item mapToItem(UrlMetaDataRetriever.UrlMetadata result, Long userId, Set<String> tags) {
+    public static Item mapToItem(UrlMetaDataRetriever.UrlMetadata result, User user, Set<String> tags) {
         Item item = new Item();
-        item.setUserId(userId);
+        item.setUser(user);
         item.setUrl(result.getNormalUrl());
         item.setResolvedUrl(result.getResolvedUrl());
         item.setMimeType(result.getMimeType());
